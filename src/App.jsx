@@ -79,7 +79,7 @@ export default class App extends Component {
         width="100vw"
         height="100vh"
         // mapStyle="mapbox://styles/mapbox/dark-v9"
-        mapStyle="mapbox://styles/mapbox/streets-v9"
+        mapStyle="mapbox://styles/mapbox/streets-v10"
         onViewportChange={this._updateViewport}
         mapboxApiAccessToken={TOKEN}
       >
