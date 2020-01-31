@@ -1,9 +1,5 @@
 import React, { Component } from 'react';
-import MapGL, {
-  Popup,
-  NavigationControl,
-  FullscreenControl
-} from 'react-map-gl';
+import MapGL, { Popup, GeolocateControl } from 'react-map-gl';
 import './App.css';
 
 import Pins from './components/map/shop-indicator';
@@ -14,18 +10,11 @@ import CITIES from './components/data/cities.json';
 const TOKEN =
   'pk.eyJ1Ijoib3p6eWNvZGUiLCJhIjoiY2s2MXhpbmdmMDdwejNrbW14eXJvaTYxayJ9.lwAX0SNCShN0GZqtmuLrmw';
 
-const fullscreenControlStyle = {
+const geolocateStyle = {
   position: 'absolute',
   top: 0,
   left: 0,
-  padding: '10px'
-};
-
-const navStyle = {
-  position: 'absolute',
-  top: 36,
-  left: 0,
-  padding: '10px'
+  margin: 10
 };
 
 export default class App extends Component {
@@ -86,12 +75,11 @@ export default class App extends Component {
         <Pins data={CITIES} onClick={this._onClickMarker} />
 
         {this._renderPopup()}
-
-        <div style={fullscreenControlStyle}>
-          <FullscreenControl />
-        </div>
-        <div style={navStyle}>
-          <NavigationControl />
+        <div style={geolocateStyle}>
+          <GeolocateControl
+            positionOptions={{ enableHighAccuracy: true }}
+            trackUserLocation={true}
+          />
         </div>
       </MapGL>
     );
