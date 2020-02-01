@@ -74,7 +74,8 @@ a {
 }
 .geolocate {
   position: absolute;
-  top: calc(100vh - 37vh);
+  z-index: 9;
+  top: calc(100vh - 40vh);
   right: 0;
   margin: 10px;
 }
