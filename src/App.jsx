@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import MapGL, { Popup, GeolocateControl } from 'react-map-gl';
+import MapGL, { Popup, GeolocateControl, Layer } from 'react-map-gl';
 import './App.css';
 
 import ShopIndicator from './components/map/shop-indicator';
@@ -9,6 +9,15 @@ import CITIES from './components/data/cities.json';
 
 const TOKEN =
   'pk.eyJ1Ijoib3p6eWNvZGUiLCJhIjoiY2s2MXhpbmdmMDdwejNrbW14eXJvaTYxayJ9.lwAX0SNCShN0GZqtmuLrmw';
+// const parkLayer = {
+//   id: 'water',
+//   source: 'mapbox-streets',
+//   'source-layer': 'water',
+//   type: 'fill',
+//   paint: {
+//     'fill-color': '#00ffff'
+//   }
+// };
 
 export default class App extends Component {
   constructor(props) {
@@ -51,17 +60,33 @@ export default class App extends Component {
       )
     );
   }
+  componentDidMount() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const long = position.coords.longitude;
+        this.setState({
+          viewport: {
+            latitude: lat,
+            longitude: long,
+            zoom: 7,
+            bearing: 0,
+            pitch: 0
+          }
+        });
+      });
+    }
+  }
 
   render() {
     const { viewport } = this.state;
-
     return (
       <MapGL
         {...viewport}
         width="100vw"
         height="100vh"
-        // mapStyle="mapbox://styles/mapbox/dark-v9"
-        mapStyle="mapbox://styles/mapbox/streets-v9"
+        // mapStyle="mapbox://styles/mapbox/dark-v10"
+        mapStyle="mapbox://styles/mapbox/streets-v10"
         onViewportChange={this.updateViewport}
         mapboxApiAccessToken={TOKEN}
       >
@@ -69,11 +94,9 @@ export default class App extends Component {
 
         {this.handleShowPopup()}
         <div className="geolocate">
-          <GeolocateControl
-            positionOptions={{ enableHighAccuracy: true }}
-            trackUserLocation={true}
-          />
+          <GeolocateControl positionOptions={{ enableHighAccuracy: true }} />
         </div>
+        {/* <Layer {...parkLayer} /> */}
       </MapGL>
     );
   }
