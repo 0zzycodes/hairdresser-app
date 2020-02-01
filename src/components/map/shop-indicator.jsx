@@ -2,7 +2,7 @@ import React from 'react';
 import { Marker } from 'react-map-gl';
 import store from '../../assets/store.svg';
 
-export default class Pins extends React.Component {
+export default class ShopIndicator extends React.Component {
   render() {
     const { data, onClick } = this.props;
 

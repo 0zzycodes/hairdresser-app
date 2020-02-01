@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import MapGL, { Popup, GeolocateControl } from 'react-map-gl';
 import './App.css';
 
-import Pins from './components/map/shop-indicator';
+import ShopIndicator from './components/map/shop-indicator';
 import CityInfo from './components/map/shop-info';
 
 import CITIES from './components/data/cities.json';
@@ -10,21 +10,14 @@ import CITIES from './components/data/cities.json';
 const TOKEN =
   'pk.eyJ1Ijoib3p6eWNvZGUiLCJhIjoiY2s2MXhpbmdmMDdwejNrbW14eXJvaTYxayJ9.lwAX0SNCShN0GZqtmuLrmw';
 
-const geolocateStyle = {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  margin: 10
-};
-
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       viewport: {
-        latitude: 37.785164,
-        longitude: -100,
-        zoom: 9,
+        latitude: 3.89725,
+        longitude: 7.377746,
+        zoom: 7,
         bearing: 0,
         pitch: 0
       },
@@ -32,15 +25,15 @@ export default class App extends Component {
     };
   }
 
-  _updateViewport = viewport => {
+  updateViewport = viewport => {
     this.setState({ viewport });
   };
 
-  _onClickMarker = city => {
+  handleClickMarker = city => {
     this.setState({ popupInfo: city });
   };
 
-  _renderPopup() {
+  handleShowPopup() {
     const { popupInfo } = this.state;
 
     return (
@@ -68,14 +61,14 @@ export default class App extends Component {
         width="100vw"
         height="100vh"
         // mapStyle="mapbox://styles/mapbox/dark-v9"
-        mapStyle="mapbox://styles/mapbox/streets-v10"
-        onViewportChange={this._updateViewport}
+        mapStyle="mapbox://styles/mapbox/streets-v9"
+        onViewportChange={this.updateViewport}
         mapboxApiAccessToken={TOKEN}
       >
-        <Pins data={CITIES} onClick={this._onClickMarker} />
+        <ShopIndicator data={CITIES} onClick={this.handleClickMarker} />
 
-        {this._renderPopup()}
-        <div style={geolocateStyle}>
+        {this.handleShowPopup()}
+        <div className="geolocate">
           <GeolocateControl
             positionOptions={{ enableHighAccuracy: true }}
             trackUserLocation={true}
