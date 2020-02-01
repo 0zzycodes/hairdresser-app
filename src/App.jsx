@@ -1,25 +1,17 @@
 import React, { Component } from 'react';
-import MapGL, { Popup, GeolocateControl, Layer } from 'react-map-gl';
+import MapGL, { Popup, GeolocateControl } from 'react-map-gl';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+import { setShops } from './redux/shop/shop.actions';
+import { selectShops } from './redux/shop/shop.selectors';
 import './App.css';
-
 import ShopIndicator from './components/map/shop-indicator';
-import CityInfo from './components/map/shop-info';
-
-import CITIES from './components/data/cities.json';
+import ShopInfo from './components/map/shop-info';
 
 const TOKEN =
   'pk.eyJ1Ijoib3p6eWNvZGUiLCJhIjoiY2s2MXhpbmdmMDdwejNrbW14eXJvaTYxayJ9.lwAX0SNCShN0GZqtmuLrmw';
-// const parkLayer = {
-//   id: 'water',
-//   source: 'mapbox-streets',
-//   'source-layer': 'water',
-//   type: 'fill',
-//   paint: {
-//     'fill-color': '#00ffff'
-//   }
-// };
 
-export default class App extends Component {
+class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,8 +30,8 @@ export default class App extends Component {
     this.setState({ viewport });
   };
 
-  handleClickMarker = city => {
-    this.setState({ popupInfo: city });
+  handleClickMarker = shop => {
+    this.setState({ popupInfo: shop });
   };
 
   handleShowPopup() {
@@ -50,12 +42,12 @@ export default class App extends Component {
         <Popup
           tipSize={5}
           anchor="top"
-          longitude={popupInfo.longitude}
-          latitude={popupInfo.latitude}
+          longitude={popupInfo.location.coordinates[0]}
+          latitude={popupInfo.location.coordinates[1]}
           closeOnClick={false}
           onClose={() => this.setState({ popupInfo: null })}
         >
-          <CityInfo info={popupInfo} />
+          <ShopInfo info={popupInfo} />
         </Popup>
       )
     );
@@ -76,6 +68,11 @@ export default class App extends Component {
         });
       });
     }
+    fetch(`https://hairdresser-app.herokuapp.com/api/v1/shops`)
+      .then(res => res.json())
+      .then(res => {
+        this.props.setShops(res.data.shops);
+      });
   }
 
   render() {
@@ -90,14 +87,24 @@ export default class App extends Component {
         onViewportChange={this.updateViewport}
         mapboxApiAccessToken={TOKEN}
       >
-        <ShopIndicator data={CITIES} onClick={this.handleClickMarker} />
-
+        <ShopIndicator
+          data={this.props.shops}
+          onClick={this.handleClickMarker}
+        />
         {this.handleShowPopup()}
         <div className="geolocate">
           <GeolocateControl positionOptions={{ enableHighAccuracy: true }} />
         </div>
-        {/* <Layer {...parkLayer} /> */}
       </MapGL>
     );
   }
 }
+
+const mapStateToProps = createStructuredSelector({
+  shops: selectShops
+});
+const mapDispatchToProps = dispatch => ({
+  setShops: shops => dispatch(setShops(shops))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
