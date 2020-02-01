@@ -15,8 +15,8 @@ export default class ShopIndicator extends React.Component {
         <img
           src={store}
           alt="indicatore"
-          width="20px"
-          height="20px"
+          width="25px"
+          height="25px"
           onClick={() => onClick(shop)}
         />
       </Marker>
