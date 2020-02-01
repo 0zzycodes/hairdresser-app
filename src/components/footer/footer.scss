@@ -1,0 +1,28 @@
+$primaryColor: #000000;
+$secondaryColor: #ffffff;
+
+.footer {
+  position: fixed;
+  z-index: 99999;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  height: 30vh;
+  background: $secondaryColor;
+  color: $primaryColor;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding-bottom: 10px;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  .copyright {
+    text-align: center;
+    padding: 0 5%;
+
+    a {
+      color: #006eff;
+      font-weight: 600;
+    }
+  }
+}

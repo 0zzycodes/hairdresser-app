@@ -7,6 +7,8 @@ import { selectShops } from './redux/shop/shop.selectors';
 import './App.css';
 import ShopIndicator from './components/map/shop-indicator';
 import ShopInfo from './components/map/shop-info';
+import Header from './components/header/header';
+import Footer from './components/footer/footer';
 
 const TOKEN =
   'pk.eyJ1Ijoib3p6eWNvZGUiLCJhIjoiY2s2MXhpbmdmMDdwejNrbW14eXJvaTYxayJ9.lwAX0SNCShN0GZqtmuLrmw';
@@ -19,8 +21,8 @@ class App extends Component {
         latitude: 3.89725,
         longitude: 7.377746,
         zoom: 7,
-        bearing: 0,
-        pitch: 0
+        bearing: 1,
+        pitch: 30
       },
       popupInfo: null
     };
@@ -61,9 +63,9 @@ class App extends Component {
           viewport: {
             latitude: lat,
             longitude: long,
-            zoom: 7,
-            bearing: 0,
-            pitch: 0
+            zoom: 11,
+            bearing: 1,
+            pitch: 30
           }
         });
       });
@@ -77,25 +79,31 @@ class App extends Component {
 
   render() {
     const { viewport } = this.state;
-    return (
-      <MapGL
-        {...viewport}
-        width="100vw"
-        height="100vh"
-        // mapStyle="mapbox://styles/mapbox/dark-v10"
-        mapStyle="mapbox://styles/mapbox/streets-v10"
-        onViewportChange={this.updateViewport}
-        mapboxApiAccessToken={TOKEN}
-      >
-        <ShopIndicator
-          data={this.props.shops}
-          onClick={this.handleClickMarker}
-        />
-        {this.handleShowPopup()}
-        <div className="geolocate">
-          <GeolocateControl positionOptions={{ enableHighAccuracy: true }} />
-        </div>
-      </MapGL>
+    return window.innerWidth < 500 ? (
+      <div className="App">
+        <Header />
+        <MapGL
+          {...viewport}
+          width="100vw"
+          height="100vh"
+          // mapStyle="mapbox://styles/mapbox/dark-v10"
+          mapStyle="mapbox://styles/mapbox/streets-v11"
+          onViewportChange={this.updateViewport}
+          mapboxApiAccessToken={TOKEN}
+        >
+          <ShopIndicator
+            data={this.props.shops}
+            onClick={this.handleClickMarker}
+          />
+          {this.handleShowPopup()}
+          <div className="geolocate">
+            <GeolocateControl positionOptions={{ enableHighAccuracy: true }} />
+          </div>
+        </MapGL>
+        <Footer />
+      </div>
+    ) : (
+      <h1>Only available on smartfone screen size</h1>
     );
   }
 }
