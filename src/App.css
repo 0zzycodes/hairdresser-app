@@ -79,18 +79,26 @@ a {
   right: 0;
   margin: 10px;
 }
-.loader-container {
+.loader-container,
+.start-container {
   position: fixed;
-  background-color: #000000a8;
+  background-color: rgba(255, 255, 255, 0.76);
   right: 0;
   left: 0;
   bottom: 0;
   height: calc(100vh - 50px);
   display: flex;
   z-index: 3;
+  text-align: center;
+}
+.start-container {
+  background-color: #ffffff;
 }
 .loader-container img {
   height: 50px;
   width: 50px;
+  margin: auto;
+}
+.start-container .start {
   margin: auto;
 }

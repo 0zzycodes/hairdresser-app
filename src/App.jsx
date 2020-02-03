@@ -27,6 +27,7 @@ class App extends Component {
         pitch: 30
       },
       popupInfo: null,
+      message: null,
       got_hairdresser: false,
       hairdresser: null,
       is_searching: false,
@@ -64,6 +65,24 @@ class App extends Component {
       )
     );
   }
+
+  handleHairDone = () => {
+    this.setState({
+      popupInfo: null,
+      message: null,
+      got_hairdresser: false,
+      hairdresser: null,
+      is_searching: false,
+      is_hair_start: false,
+      is_hair_done: false
+    });
+    this.user_hairD_channel.trigger('client-hairdresser-message', {
+      type: 'Done',
+      title: `Thank You`,
+      msg: 5
+    });
+    // this.user_hairD_channel.unbind('client-hairdresser-response');
+  };
 
   findHairdresser() {
     this.setState({
@@ -105,7 +124,9 @@ class App extends Component {
       'private-available-hairdressers'
     );
 
-    this.user_hairD_channel = pusher.subscribe('private-ride-' + this.username);
+    this.user_hairD_channel = pusher.subscribe(
+      'private-hairD-' + this.username
+    );
 
     this.user_hairD_channel.bind('client-hairdresser-response', data => {
       let client_response = 'no';
@@ -127,47 +148,21 @@ class App extends Component {
           name: data.hairdresser.name
         }
       });
-
-      alert(
-        `Orayt! We found you a hairdresser.
-        Name: ${data.hairdresser.name}`
-      );
     });
 
     this.user_hairD_channel.bind('client-hairdresser-message', data => {
-      if (data.type === 'NOTIF') {
+      if (data.type === 'STARTING') {
         //remove client marker
         this.setState({
-          is_hair_start: true
-        });
-        // this.setState({
-        //   is_hair_done: true
-        // });
-        alert(
-          `${data.title}
-          ${data.msg}`
-        );
-      }
-
-      if (data.type === 'near_dropoff') {
-        alert(
-          `${data.title}
-          ${data.msg}`
-        );
-        this.setState({
-          popupInfo: null,
-          got_hairdresser: false,
-          hairdresser: null,
-          is_searching: false,
-          is_hair_start: false,
-          is_hair_done: false
+          is_hair_start: true,
+          message: data
         });
       }
     });
   }
 
   render() {
-    const { viewport } = this.state;
+    const { viewport, is_searching, is_hair_start, hairdresser } = this.state;
     return window.innerWidth < 500 ? (
       <div className="App">
         <Header />
@@ -189,9 +184,32 @@ class App extends Component {
             <GeolocateControl positionOptions={{ enableHighAccuracy: true }} />
           </div>
         </MapGL>
-        {this.state.is_searching ? (
+        {is_searching ? (
           <div className="loader-container">
             <img src={loader} alt="Loader" />
+          </div>
+        ) : null}
+        {hairdresser ? (
+          <div className="start-container">
+            <div className="start">
+              <h3>
+                Orayt! We found you a hairdresser. Name: {hairdresser.name}
+              </h3>
+              <button className="btn" onClick={this.handleHairDone}>
+                Ayy
+              </button>
+            </div>
+          </div>
+        ) : null}
+        {is_hair_start ? (
+          <div className="start-container">
+            <div className="start">
+              <h3>{this.state.message.title}</h3>
+              <h4>{this.state.message.msg}</h4>
+              <button className="btn" onClick={this.handleHairDone}>
+                Done
+              </button>
+            </div>
           </div>
         ) : null}
         <Footer handleClick={this.findHairdresser} />
