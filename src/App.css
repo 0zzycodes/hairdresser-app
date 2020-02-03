@@ -74,8 +74,23 @@ a {
 }
 .geolocate {
   position: absolute;
-  z-index: 9;
+  z-index: 2;
   top: calc(100vh - 40vh);
   right: 0;
   margin: 10px;
+}
+.loader-container {
+  position: fixed;
+  background-color: #000000a8;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  height: calc(100vh - 50px);
+  display: flex;
+  z-index: 3;
+}
+.loader-container img {
+  height: 50px;
+  width: 50px;
+  margin: auto;
 }

@@ -5,12 +5,11 @@ import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { setShops } from './redux/shop/shop.actions';
 import { selectShops } from './redux/shop/shop.selectors';
+import './App.css';
 import ShopIndicator from './components/map/shop-indicator';
 import ShopInfo from './components/map/shop-info';
 import Header from './components/header/header';
 import Footer from './components/footer/footer';
-import loader from './assets/loader.gif';
-import './App.css';
 
 const TOKEN =
   'pk.eyJ1Ijoib3p6eWNvZGUiLCJhIjoiY2s2MXhpbmdmMDdwejNrbW14eXJvaTYxayJ9.lwAX0SNCShN0GZqtmuLrmw';
@@ -27,16 +26,23 @@ class App extends Component {
         pitch: 30
       },
       popupInfo: null,
-      got_hairdresser: false,
-      hairdresser: null,
+      location: 'Ayegun',
+      error: null,
+      has_ride: false,
+      destination: null,
+      driver: null,
+      origin: {
+        name: 'Ayetoro',
+        latitude: 'response_latitude',
+        longitude: 'response.longitude'
+      },
       is_searching: false,
-      is_hair_start: false,
-      is_hair_done: false
+      has_ridden: false
     };
-    this.username = 'Client_Name';
-    this.available_hairdressers_channel = null;
-    this.findHairdresser = this.findHairdresser.bind(this);
-    this.user_hairD_channel = null;
+    this.username = 'wernancheta';
+    this.available_drivers_channel = null;
+    this.bookRide = this.bookRide.bind(this);
+    this.user_ride_channel = null;
   }
   updateViewport = viewport => {
     this.setState({ viewport });
@@ -65,13 +71,32 @@ class App extends Component {
     );
   }
 
-  findHairdresser() {
+  bookRide() {
     this.setState({
-      is_searching: true
+      is_searching: true,
+      destination: {
+        name: 'Ayetoro',
+        latitude: 'response_latitude',
+        longitude: 'response.longitude'
+      }
     });
 
-    this.available_hairdressers_channel.trigger('client-hairdresser-request', {
-      username: this.username
+    let pickup_data = {
+      name: this.state.origin.name,
+      latitude: this.state.location.latitude,
+      longitude: this.state.location.longitude
+    };
+
+    let dropoff_data = {
+      name: 'Ayetoro',
+      latitude: 'response_latitude',
+      longitude: 'response.longitude'
+    };
+
+    this.available_drivers_channel.trigger('client-driver-request', {
+      username: this.username,
+      pickup: pickup_data,
+      dropoff: dropoff_data
     });
   }
 
@@ -97,72 +122,103 @@ class App extends Component {
         this.props.setShops(res.data.shops);
       });
     const pusher = new Pusher('bfa794d9a749bee1f67d', {
-      authEndpoint: 'https://hairdresser-app.herokuapp.com/pusher/auth',
+      authEndpoint: 'http://localhost:5000/pusher/auth',
       cluster: 'eu',
       encrypted: true
     });
-    this.available_hairdressers_channel = pusher.subscribe(
-      'private-available-hairdressers'
+    this.available_drivers_channel = pusher.subscribe(
+      'private-available-drivers'
     );
 
-    this.user_hairD_channel = pusher.subscribe('private-ride-' + this.username);
+    this.user_ride_channel = pusher.subscribe('private-ride-' + this.username);
 
-    this.user_hairD_channel.bind('client-hairdresser-response', data => {
-      let client_response = 'no';
-      if (!this.state.got_hairdresser) {
-        client_response = 'yes';
+    this.user_ride_channel.bind('client-driver-response', data => {
+      let passenger_response = 'no';
+      if (!this.state.has_ride) {
+        passenger_response = 'yes';
       }
 
-      // client responds to hairdresser's response
-      this.user_hairD_channel.trigger('client-hairdresser-response', {
-        response: client_response
+      // passenger responds to driver's response
+      this.user_ride_channel.trigger('client-driver-response', {
+        response: passenger_response
       });
     });
-    // CLIENT RECIVE THE INFO SENT BY THE HAIRDRESSER
-    this.user_hairD_channel.bind('client-found-hairdresser', data => {
+
+    this.user_ride_channel.bind('client-found-driver', data => {
+      // found driver, the passenger has no say about this.
+      // once a driver is found, this will be the driver that's going to drive the user
+      // to their destination
+      // let region = regionFrom(
+      // 	data.location.latitude,
+      // 	data.location.longitude,
+      // 	data.location.accuracy
+      // );
+
       this.setState({
-        got_hairdresser: true,
+        has_ride: true,
         is_searching: false,
-        hairdresser: {
-          name: data.hairdresser.name
+        // location: region,
+        driver: {
+          latitude: data.location.latitude,
+          longitude: data.location.longitude,
+          accuracy: data.location.accuracy
         }
       });
 
       alert(
-        `Orayt! We found you a hairdresser.
-        Name: ${data.hairdresser.name}`
+        'Orayt!',
+        'We found you a driver. \nName: ' +
+          data.driver.name +
+          '\nCurrent location: ' +
+          data.location.name,
+        [
+          {
+            text: 'Sweet!'
+          }
+        ],
+        { cancelable: false }
       );
     });
 
-    this.user_hairD_channel.bind('client-hairdresser-message', data => {
-      if (data.type === 'NOTIF') {
-        //remove client marker
+    this.user_ride_channel.bind('client-driver-location', data => {
+      // driver location received
+      // let region = regionFrom(
+      //   data.latitude,
+      //   data.longitude,
+      //   data.accuracy
+      // );
+
+      this.setState({
+        // location: region,
+        driver: {
+          latitude: data.latitude,
+          longitude: data.longitude
+        }
+      });
+    });
+
+    this.user_ride_channel.bind('client-driver-message', data => {
+      if (data.type === 'near_pickup') {
+        //remove passenger marker
         this.setState({
-          is_hair_start: true
+          has_ridden: true
         });
-        // this.setState({
-        //   is_hair_done: true
-        // });
-        alert(
-          `${data.title}
-          ${data.msg}`
-        );
       }
 
       if (data.type === 'near_dropoff') {
-        alert(
-          `${data.title}
-          ${data.msg}`
-        );
-        this.setState({
-          popupInfo: null,
-          got_hairdresser: false,
-          hairdresser: null,
-          is_searching: false,
-          is_hair_start: false,
-          is_hair_done: false
-        });
+        this._setCurrentLocation();
       }
+
+      alert(
+        data.title,
+        data.msg,
+        [
+          {
+            text: 'Aye sir!'
+          }
+        ],
+        { cancelable: false }
+      );
     });
   }
 
@@ -189,12 +245,7 @@ class App extends Component {
             <GeolocateControl positionOptions={{ enableHighAccuracy: true }} />
           </div>
         </MapGL>
-        {this.state.is_searching ? (
-          <div className="loader-container">
-            <img src={loader} alt="Loader" />
-          </div>
-        ) : null}
-        <Footer handleClick={this.findHairdresser} />
+        <Footer handleClick={this.bookRide} />
       </div>
     ) : (
       <h1>Only available on smartfone screen size</h1>
