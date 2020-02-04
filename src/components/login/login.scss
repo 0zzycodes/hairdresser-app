@@ -1,0 +1,47 @@
+$smartphone: 500px;
+
+// Mixin
+@mixin smartphone {
+  @media (max-width: #{$smartphone}) {
+    @content;
+  }
+}
+
+.login {
+  max-width: 380px;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+  .title {
+    font-weight: 400;
+  }
+  .buttons {
+    display: flex;
+    justify-content: space-between;
+
+    img {
+      margin-left: 10px;
+      width: 20px;
+      height: 20px;
+    }
+
+    button {
+      margin-bottom: 10px;
+    }
+  }
+  .error {
+    position: fixed;
+    top: 70px;
+    right: 0;
+    left: 0;
+    background-color: #ff00008a;
+    color: #ff0000;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-weight: 600;
+    z-index: 99;
+  }
+}
