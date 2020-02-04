@@ -8,8 +8,8 @@ import LoginAndRegister from './pages/login-register/loginAndRegister';
 import { setCurrentUser } from './redux/user/user.actions';
 import { selectCurrentUser } from './redux/user/user.selectors';
 import './App.css';
-import Login from './components/login/login';
-import Register from './components/register/register';
+import Login from './pages/login/login';
+import Register from './pages/register/register';
 
 class App extends React.Component {
   state = {
@@ -31,7 +31,13 @@ class App extends React.Component {
           />
           <Route exact path="/register" component={Register} />
           <Route exact path="/login" component={Login} />
-          <Route exact path="/home" component={Homepage} />
+          <Route
+            exact
+            path="/home"
+            render={() =>
+              currentUser ? <Homepage /> : <Redirect to="/login" />
+            }
+          />
         </Switch>
       </div>
     );

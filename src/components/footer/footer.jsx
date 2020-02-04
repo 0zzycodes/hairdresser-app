@@ -7,10 +7,10 @@ const Footer = ({ handleClick }) => {
       <button onClick={handleClick} className="btn">
         Find
       </button>
-      <p className="copyright">
+      {/* <p className="copyright">
         &copy; HairD {new Date().getFullYear()} | Designed by{' '}
         <a href="https://ozzy-dev.netlify.com"> Ozzy-dev</a>
-      </p>
+      </p> */}
     </footer>
   );
 };

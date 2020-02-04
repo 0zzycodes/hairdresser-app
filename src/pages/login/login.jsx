@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import FormInput from '../form-input/form-input';
-import CustomButton from '../custom-button/custom-button';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { setCurrentUser } from '../../redux/user/user.actions';
+import FormInput from '../../components/form-input/form-input';
+import CustomButton from '../../components/custom-button/custom-button';
 import loader from '../../assets/loader.gif';
 
 import './login.scss';
-export default class Login extends Component {
+class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -17,10 +20,23 @@ export default class Login extends Component {
   handleSubmit = async event => {
     event.preventDefault();
     const { email, password } = this.state;
-
     try {
       this.setState({ isLoading: true });
+      let response = await fetch(
+        'https://hairdresser-app.herokuapp.com/api/v1/users/login',
+        {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        }
+      );
+      let data = await response.json();
+      this.setState({ isLoading: false });
+      this.props.setCurrentUser(data.data.user);
       this.setState({ email: '', password: '' });
+      this.props.history.push(`/home`);
     } catch (error) {
       error.code === 'auth/wrong-password'
         ? this.setState({
@@ -71,7 +87,7 @@ export default class Login extends Component {
               label="Password"
             />
             <div className="buttons">
-              <CustomButton type="button">
+              <CustomButton type="button" onClick={this.handleSubmit}>
                 Login {isLoading ? <img src={loader} alt="Loader" /> : null}
               </CustomButton>
             </div>
@@ -81,3 +97,8 @@ export default class Login extends Component {
     );
   }
 }
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+});
+
+export default withRouter(connect(null, mapDispatchToProps)(Login));

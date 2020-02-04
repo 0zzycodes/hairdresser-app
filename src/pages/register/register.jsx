@@ -1,11 +1,14 @@
 import React, { Component } from 'react';
-import FormInput from '../form-input/form-input';
-import CustomButton from '../custom-button/custom-button';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { setCurrentUser } from '../../redux/user/user.actions';
+import FormInput from '../../components/form-input/form-input';
+import CustomButton from '../../components/custom-button/custom-button';
 import loader from '../../assets/loader.gif';
 
 import './register.scss';
 
-export default class Register extends Component {
+class Register extends Component {
   constructor() {
     super();
     this.state = {
@@ -32,28 +35,48 @@ export default class Register extends Component {
     }
     try {
       this.setState({ isLoading: true });
-
-      this.setState({ isSuccess: true });
-    } catch (error) {
-      error.code === 'auth/email-already-in-use'
+      let response = await fetch(
+        'https://hairdresser-app.herokuapp.com/api/v1/users/signup',
+        {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: displayName,
+            email,
+            password,
+            passwordConfirm: confirmPassword,
+            role: 'user',
+            service: 'client'
+          })
+        }
+      );
+      let data = await response.json();
+      this.setState({ isLoading: false, isSuccess: true });
+      this.props.setCurrentUser(data.data.user);
+      this.setState({
+        displayName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
+      this.props.history.push(`/home`);
+    } catch (err) {
+      this.setState({ isLoading: false });
+      err.code === 'auth/email-already-in-use'
         ? this.setState({
             isLoading: false,
             errorMessage:
               'The email address is already in use by another account'
           })
-        : error.code === 'auth/weak-password'
+        : err.code === 'auth/weak-password'
         ? this.setState({
             isLoading: false,
             errorMessage: 'Password should be at least 6 characters'
           })
         : this.setState({ isLoading: false, errorMessage: 'Wierd' });
     }
-    this.setState({
-      displayName: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    });
   };
   render() {
     const {
@@ -64,7 +87,6 @@ export default class Register extends Component {
       errorMessage,
       isLoading
     } = this.state;
-    const { handleToggleSidebar } = this.props;
     return (
       <div className="register">
         <div>
@@ -112,3 +134,9 @@ export default class Register extends Component {
     );
   }
 }
+
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+});
+
+export default withRouter(connect(null, mapDispatchToProps)(Register));
