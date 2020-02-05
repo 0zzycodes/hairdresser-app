@@ -3,6 +3,7 @@ import MapGL, { Popup, GeolocateControl } from 'react-map-gl';
 import Pusher from 'pusher-js';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import { selectCurrentUser } from '../../redux/user/user.selectors';
 import { setShops } from '../../redux/shop/shop.actions';
 import { selectShops } from '../../redux/shop/shop.selectors';
 import ShopIndicator from '../../components/map/shop-indicator';
@@ -34,7 +35,7 @@ class Homepage extends Component {
       is_hair_start: false,
       is_hair_done: false
     };
-    this.username = 'Client_Name';
+    this.username = this.props.currentUser.name;
     this.available_hairdressers_channel = null;
     this.findHairdresser = this.findHairdresser.bind(this);
     this.user_hairD_channel = null;
@@ -181,7 +182,10 @@ class Homepage extends Component {
           />
           {this.handleShowPopup()}
           <div className="geolocate">
-            <GeolocateControl positionOptions={{ enableHighAccuracy: true }} />
+            <GeolocateControl
+              style={{ background: 'black', outline: 'none', border: 'none' }}
+              positionOptions={{ enableHighAccuracy: true }}
+            />
           </div>
         </MapGL>
         {is_searching ? (
@@ -221,6 +225,7 @@ class Homepage extends Component {
 }
 
 const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser,
   shops: selectShops
 });
 const mapDispatchToProps = dispatch => ({

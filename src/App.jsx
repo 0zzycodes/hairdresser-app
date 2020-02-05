@@ -29,8 +29,18 @@ class App extends React.Component {
               currentUser ? <Redirect to="/home" /> : <LoginAndRegister />
             }
           />
-          <Route exact path="/register" component={Register} />
-          <Route exact path="/login" component={Login} />
+          <Route
+            exact
+            path="/register"
+            render={() =>
+              currentUser ? <Redirect to="/home" /> : <Register />
+            }
+          />
+          <Route
+            exact
+            path="/login"
+            render={() => (currentUser ? <Redirect to="/home" /> : <Login />)}
+          />
           <Route
             exact
             path="/home"

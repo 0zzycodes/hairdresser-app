@@ -47,8 +47,7 @@ class Register extends Component {
             email,
             password,
             passwordConfirm: confirmPassword,
-            role: 'user',
-            service: 'client'
+            role: 'client'
           })
         }
       );
