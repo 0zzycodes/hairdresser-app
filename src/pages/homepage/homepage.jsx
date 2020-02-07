@@ -150,6 +150,9 @@ class Homepage extends Component {
         }
       });
     });
+    // this.available_hairdressers_channel = pusher.unsubscribe(
+    //   'private-available-hairdressers'
+    // );
 
     this.user_hairD_channel.bind('client-hairdresser-message', data => {
       if (data.type === 'STARTING') {

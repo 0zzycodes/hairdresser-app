@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { auth } from '../../firebase/firebase.utils';
+import { setCurrentUser } from '../../redux/user/user.actions';
 import FormInput from '../../components/form-input/form-input';
 import CustomButton from '../../components/custom-button/custom-button';
 import loader from '../../assets/loader.gif';
@@ -19,11 +20,23 @@ class Login extends Component {
   handleSubmit = async event => {
     event.preventDefault();
     const { email, password } = this.state;
-
     try {
       this.setState({ isLoading: true });
-      await auth.signInWithEmailAndPassword(email, password);
+      let response = await fetch(
+        'https://hairdresser-app.herokuapp.com/api/v1/users/login',
+        {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        }
+      );
+      let data = await response.json();
+      this.setState({ isLoading: false });
+      this.props.setCurrentUser(data.data.user);
       this.setState({ email: '', password: '' });
+      this.props.history.push(`/home`);
     } catch (error) {
       error.code === 'auth/wrong-password'
         ? this.setState({
@@ -37,13 +50,8 @@ class Login extends Component {
             errorMessage:
               'There is no user record corresponding to this identifier.'
           })
-        : this.setState({
-            isLoading: false,
-            errorMessage: 'Shit just got real'
-          });
+        : this.setState({ isLoading: false, errorMessage: 'Wierd' });
     }
-
-    // this.setState({ email: '', password: '' });
   };
   handleChange = event => {
     const { name, value } = event.target;
@@ -89,5 +97,8 @@ class Login extends Component {
     );
   }
 }
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user))
+});
 
-export default withRouter(Login);
+export default withRouter(connect(null, mapDispatchToProps)(Login));

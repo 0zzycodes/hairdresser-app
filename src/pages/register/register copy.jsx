@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { setCurrentUser } from '../../redux/user/user.actions';
-import { auth, createUserProfileDocument } from '../../firebase/firebase.utils';
 import FormInput from '../../components/form-input/form-input';
 import CustomButton from '../../components/custom-button/custom-button';
 import loader from '../../assets/loader.gif';
@@ -36,32 +35,47 @@ class Register extends Component {
     }
     try {
       this.setState({ isLoading: true });
-      const { user } = await auth.createUserWithEmailAndPassword(
-        email,
-        password
+      let response = await fetch(
+        'https://hairdresser-app.herokuapp.com/api/v1/users/signup',
+        {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: displayName,
+            email,
+            password,
+            passwordConfirm: confirmPassword,
+            role: 'client'
+          })
+        }
       );
-      await createUserProfileDocument(user, { displayName });
-      this.setState({ isSuccess: true });
-    } catch (error) {
-      error.code === 'auth/email-already-in-use'
+      let data = await response.json();
+      this.setState({ isLoading: false, isSuccess: true });
+      this.props.setCurrentUser(data.data.user);
+      this.setState({
+        displayName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
+      this.props.history.push(`/home`);
+    } catch (err) {
+      this.setState({ isLoading: false });
+      err.code === 'auth/email-already-in-use'
         ? this.setState({
             isLoading: false,
             errorMessage:
               'The email address is already in use by another account'
           })
-        : error.code === 'auth/weak-password'
+        : err.code === 'auth/weak-password'
         ? this.setState({
             isLoading: false,
             errorMessage: 'Password should be at least 6 characters'
           })
-        : this.setState({ isLoading: false, errorMessage: 'Shit just got real' });
+        : this.setState({ isLoading: false, errorMessage: 'Wierd' });
     }
-    this.setState({
-      displayName: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    });
   };
   render() {
     const {

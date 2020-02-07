@@ -5,18 +5,37 @@ import { createStructuredSelector } from 'reselect';
 import Homepage from './pages/homepage/homepage';
 import LoginAndRegister from './pages/login-register/loginAndRegister';
 // import { addLocation } from './redux/location/location.actions';
-import { setCurrentUser } from './redux/user/user.actions';
-import { selectCurrentUser } from './redux/user/user.selectors';
 import './App.css';
 import Login from './pages/login/login';
 import Register from './pages/register/register';
+import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+
+import { setCurrentUser } from './redux/user/user.actions';
+import { selectCurrentUser } from './redux/user/user.selectors';
 
 class App extends React.Component {
-  state = {
+  state ={
     isLoading: true
-  };
-  componentDidMount() {}
-
+  }
+  unSubscribeFromAuth = null;
+  componentDidMount() {
+    const { setCurrentUser } = this.props;
+    this.unSubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+        userRef.onSnapshot(snapShot => {
+          setCurrentUser({
+            id: snapShot.id,
+            ...snapShot.data()
+          });
+        });
+      }
+      setCurrentUser(userAuth);
+    });
+  }
+  componentWillUnmount() {
+    this.unSubscribeFromAuth();
+  }
   render() {
     const { currentUser } = this.props;
     return (
