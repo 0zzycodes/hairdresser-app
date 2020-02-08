@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { auth } from '../../firebase/firebase.utils';
 import FormInput from '../../components/form-input/form-input';
 import CustomButton from '../../components/custom-button/custom-button';
 import loader from '../../assets/loader.gif';
+import left from '../../assets/left.svg';
 
 import './login.scss';
 class Login extends Component {
@@ -84,6 +85,11 @@ class Login extends Component {
               </CustomButton>
             </div>
           </form>
+        </div>
+        <div className="home">
+          <Link to="/">
+            <img src={left} alt="Back Icon" />
+          </Link>
         </div>
       </div>
     );

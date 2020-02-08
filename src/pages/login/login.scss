@@ -18,18 +18,35 @@ $smartphone: 500px;
   .title {
     font-weight: 400;
   }
+  img {
+    width: 20px;
+    height: 20px;
+  }
   .buttons {
     display: flex;
     justify-content: space-between;
 
     img {
       margin-left: 10px;
-      width: 20px;
-      height: 20px;
     }
 
     button {
       margin-bottom: 10px;
+    }
+  }
+  .home {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 80px;
+    display: flex;
+    padding: 20px;
+    // justify-content: center;
+    align-items: center;
+    img {
+      width: 25px;
+      height: 25px;
     }
   }
   .error {

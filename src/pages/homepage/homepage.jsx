@@ -170,7 +170,7 @@ class Homepage extends Component {
     return window.innerWidth < 500 ? (
       <div className="App">
         <Header />
-        <MapGL
+        {/* <MapGL
           {...viewport}
           width="100vw"
           height="100vh"
@@ -190,7 +190,7 @@ class Homepage extends Component {
               positionOptions={{ enableHighAccuracy: true }}
             />
           </div>
-        </MapGL>
+        </MapGL> */}
         {is_searching ? (
           <div className="loader-container">
             <img src={loader} alt="Loader" />

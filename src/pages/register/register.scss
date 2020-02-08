@@ -23,6 +23,20 @@
       margin-bottom: 10px;
     }
   }
+  .home {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 80px;
+    display: flex;
+    padding: 20px;
+    align-items: center;
+    img {
+      width: 25px;
+      height: 25px;
+    }
+  }
   .error {
     position: fixed;
     top: 0;

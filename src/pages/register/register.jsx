@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { setCurrentUser } from '../../redux/user/user.actions';
 import { auth, createUserProfileDocument } from '../../firebase/firebase.utils';
 import FormInput from '../../components/form-input/form-input';
 import CustomButton from '../../components/custom-button/custom-button';
 import loader from '../../assets/loader.gif';
+import left from '../../assets/left.svg';
 
 import './register.scss';
 
@@ -54,7 +55,10 @@ class Register extends Component {
             isLoading: false,
             errorMessage: 'Password should be at least 6 characters'
           })
-        : this.setState({ isLoading: false, errorMessage: 'Shit just got real' });
+        : this.setState({
+            isLoading: false,
+            errorMessage: 'Shit just got real'
+          });
     }
     this.setState({
       displayName: '',
@@ -114,6 +118,11 @@ class Register extends Component {
               </CustomButton>
             </div>
           </form>
+        </div>
+        <div className="home">
+          <Link to="/">
+            <img src={left} alt="Back Icon" />
+          </Link>
         </div>
       </div>
     );

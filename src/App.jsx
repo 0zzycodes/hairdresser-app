@@ -13,6 +13,7 @@ import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 import { setCurrentUser } from './redux/user/user.actions';
 import { selectCurrentUser } from './redux/user/user.selectors';
 import SetupAccount from './pages/setup-account/setup-account';
+import loader from './assets/loader.gif';
 
 class App extends React.Component {
   state = {
@@ -31,7 +32,10 @@ class App extends React.Component {
           });
         });
       }
-      setCurrentUser(userAuth);
+      // setCurrentUser(userAuth);
+      this.setState({
+        isLoading: false
+      });
     });
   }
   componentWillUnmount() {
@@ -39,7 +43,11 @@ class App extends React.Component {
   }
   render() {
     const { currentUser } = this.props;
-    return (
+    return this.state.isLoading ? (
+      <div className="loading">
+        <img src={loader} alt="Loader" />
+      </div>
+    ) : (
       <div className="wrapper">
         <Switch>
           <Route
@@ -47,7 +55,11 @@ class App extends React.Component {
             path="/"
             render={() =>
               currentUser ? (
-                <Redirect to="/setup-account" />
+                currentUser.verified ? (
+                  <Redirect to="/home" />
+                ) : (
+                  <Redirect to="/setup-account" />
+                )
               ) : (
                 <LoginAndRegister />
               )
@@ -65,7 +77,23 @@ class App extends React.Component {
             path="/login"
             render={() => (currentUser ? <Redirect to="/home" /> : <Login />)}
           />
-          <Route exact path="/setup-account" component={SetupAccount} />
+          {currentUser ? (
+            <Route
+              exact
+              path="/setup-account"
+              render={() =>
+                currentUser ? (
+                  currentUser.verified ? (
+                    <Redirect to="/home" />
+                  ) : (
+                    <SetupAccount />
+                  )
+                ) : (
+                  <Redirect to="/" />
+                )
+              }
+            />
+          ) : null}
           <Route
             exact
             path="/home"
