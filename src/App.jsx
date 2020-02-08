@@ -12,11 +12,12 @@ import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 
 import { setCurrentUser } from './redux/user/user.actions';
 import { selectCurrentUser } from './redux/user/user.selectors';
+import SetupAccount from './pages/setup-account/setup-account';
 
 class App extends React.Component {
-  state ={
+  state = {
     isLoading: true
-  }
+  };
   unSubscribeFromAuth = null;
   componentDidMount() {
     const { setCurrentUser } = this.props;
@@ -45,7 +46,11 @@ class App extends React.Component {
             exact
             path="/"
             render={() =>
-              currentUser ? <Redirect to="/home" /> : <LoginAndRegister />
+              currentUser ? (
+                <Redirect to="/setup-account" />
+              ) : (
+                <LoginAndRegister />
+              )
             }
           />
           <Route
@@ -60,11 +65,20 @@ class App extends React.Component {
             path="/login"
             render={() => (currentUser ? <Redirect to="/home" /> : <Login />)}
           />
+          <Route exact path="/setup-account" component={SetupAccount} />
           <Route
             exact
             path="/home"
             render={() =>
-              currentUser ? <Homepage /> : <Redirect to="/login" />
+              currentUser ? (
+                currentUser.verified ? (
+                  <Homepage />
+                ) : (
+                  <Redirect to="/setup-account" />
+                )
+              ) : (
+                <Redirect to="/login" />
+              )
             }
           />
         </Switch>
