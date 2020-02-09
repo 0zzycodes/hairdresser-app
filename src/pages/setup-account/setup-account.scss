@@ -7,39 +7,70 @@ $secondaryColor: #ffffff;
   padding: 20px;
   .head {
     text-align: center;
+    h4 {
+      text-transform: uppercase;
+      padding: 10px 0px;
+      font-weight: 500;
+    }
   }
   .form-input {
     background: none;
     background-color: transparent;
-    color: $primaryColor;
+    color: darken($color: $secondaryColor, $amount: 70);
     font-size: 18px;
     padding: 10px;
     display: block;
     width: 100%;
-    border: 1px solid $primaryColor;
+    border: 1px solid darken($color: $secondaryColor, $amount: 50);
     margin: 20px 0;
+    -webkit-appearance: textfield;
+    appearance: textfield;
   }
   h3 {
     font-weight: 600;
     text-align: center;
   }
   .box {
-    margin: auto;
     position: relative;
     display: inline-block;
+    border: 1px solid darken($color: $secondaryColor, $amount: 50);
+    // margin-bottom: 20px;
+    // margin-bottom: 10px;
 
     select {
-      background-color: transparent;
-      color: $primaryColor;
-      border: 1px solid $primaryColor;
-      padding: 11px;
-      width: 100%;
-      font-size: 20px;
+      position: relative;
+      background-color: $secondaryColor;
+      color: darken($color: $secondaryColor, $amount: 70);
+      padding: 8px;
+      width: 120px;
+      border: none;
+      font-size: 16px;
       outline: none;
+      -webkit-appearance: button;
+      appearance: button;
       outline: none;
+
+      width: 238px;
+
       option {
         padding: 30px;
       }
+    }
+
+    .indc {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 100%;
+      text-align: center;
+      font-size: 25px;
+      line-height: 45px;
+      color: $primaryColor;
+      pointer-events: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
   .group {
@@ -54,6 +85,7 @@ $secondaryColor: #ffffff;
     .btn {
       min-width: auto !important;
       width: 30% !important;
+      font-size: 10px !important;
       padding: auto !important;
     }
   }
@@ -64,7 +96,7 @@ $secondaryColor: #ffffff;
     letter-spacing: 0.5px;
     line-height: 45px;
     padding: 0 35px;
-    font-size: 15px;
+    font-size: 12px;
     background-color: $primaryColor;
     color: $secondaryColor;
     text-transform: uppercase;
@@ -83,5 +115,12 @@ $secondaryColor: #ffffff;
       color: $primaryColor;
       border: 1px solid $primaryColor;
     }
+  }
+  .complete {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    left: 0;
+    right: 0;
   }
 }

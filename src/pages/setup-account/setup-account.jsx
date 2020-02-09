@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
 import { firestore } from '../../firebase/firebase.utils';
+import { GenerateId } from '../../utils/OTP';
 import { selectCurrentUser } from '../../redux/user/user.selectors';
 import loader from '../../assets/loader.gif';
 import './setup-account.scss';
@@ -12,27 +13,74 @@ class SetupAccount extends Component {
     nin: '',
     vin: '',
     phone: '',
+    otp: '',
     selectSize: '',
     isNin: false,
     isVin: false,
-    isLoading: false
+    isNinVerified: false,
+    isVinVerified: false,
+    isLoading: false,
+    canVerify: false,
+    isPhoneVerified: false
   };
-
+  sendOtp = async e => {
+    e.preventDefault();
+    let response = await fetch(
+      'https://hairdresser-app.herokuapp.com/api/v1/send-code',
+      {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          otp: GenerateId(),
+          phone: this.state.phone.substring(1)
+        })
+      }
+    );
+    let data = await response.json();
+    console.log(data);
+    this.setState({ canVerify: true });
+  };
+  verifyOtp = async e => {
+    e.preventDefault();
+    let response = await fetch(
+      'https://hairdresser-app.herokuapp.com/api/v1/verify-code',
+      {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          otp: this.state.otp
+        })
+      }
+    );
+    let data = await response.json();
+    console.log(data);
+    if (data.status === 'Success') {
+      this.setState({ isPhoneVerified: true });
+    }
+  };
   handleChange = e => {
+    e.preventDefault();
     const { name, value } = e.target;
     this.setState({ [name]: value, isSuccess: false });
   };
-  handleSubmit = async e => {
+  handleComplete = async e => {
     e.preventDefault();
     const { currentUser } = this.props;
-    const { address, nin, vin, phone } = this.state;
+    const { address, nin, vin, phone, isPhoneVerified } = this.state;
     this.setState({ isLoading: true });
     const userRef = firestore.doc(`users/${currentUser.id}`);
     const snapShot = await userRef.get();
     if (snapShot.exists) {
       const { displayName, email, joined } = currentUser;
       try {
-        if (address & nin & vin & phone) {
+        if (
+          address & vin & phone & isPhoneVerified ||
+          address & nin & phone & isPhoneVerified
+        ) {
           await userRef.set({
             displayName,
             email,
@@ -55,13 +103,14 @@ class SetupAccount extends Component {
     return (
       <div className="setup-account">
         <div className="head">
-          <h3>Complete Registration</h3>
+          <h4>Complete Registration</h4>
         </div>
         <div className="contents">
-          <form onSubmit={this.handleSubmit}>
+          <form>
             <input
               type="text"
               name="address"
+              required
               value={this.state.address}
               placeholder="Address"
               className="form-input"
@@ -73,10 +122,11 @@ class SetupAccount extends Component {
                 value={this.state.selectSize}
                 onChange={this.handleChange}
               >
-                <option value="vin/nin">VIN / NIN</option>
+                <option value="vin/nin">-- VIN / NIN --</option>
                 <option value="vin">VIN</option>
                 <option value="nin">NIN</option>
               </select>
+              <span className="indc">&#9662;</span>
               {/* <span className="indc">&#9662;</span> */}
             </div>
             {this.state.selectSize === 'nin' ? (
@@ -84,6 +134,7 @@ class SetupAccount extends Component {
                 <input
                   type="number"
                   name="nin"
+                  required
                   value={this.state.nin}
                   placeholder="Enter NIN"
                   className="form-input"
@@ -91,7 +142,10 @@ class SetupAccount extends Component {
                 />
                 <button
                   className="btn"
-                  //  onClick={this.handleSubmit}
+                  style={
+                    this.state.isNinVerified ? { background: 'green' } : {}
+                  }
+                  //  onClick={this.handleComplete}
                 >
                   Verify{' '}
                   {this.state.isLoading ? (
@@ -105,6 +159,7 @@ class SetupAccount extends Component {
                 <input
                   type="number"
                   name="vin"
+                  required
                   value={this.state.vin}
                   placeholder="Enter VIN"
                   className="form-input"
@@ -112,7 +167,10 @@ class SetupAccount extends Component {
                 />
                 <button
                   className="btn"
-                  //  onClick={this.handleSubmit}
+                  style={
+                    this.state.isVinVerified ? { background: 'green' } : {}
+                  }
+                  //  onClick={this.handleComplete}
                 >
                   Verify{' '}
                   {this.state.isLoading ? (
@@ -125,6 +183,7 @@ class SetupAccount extends Component {
               <input
                 type="number"
                 name="phone"
+                required
                 value={this.state.phone}
                 placeholder="Enter phone number"
                 className="form-input"
@@ -132,7 +191,10 @@ class SetupAccount extends Component {
               />
               <button
                 className="btn"
-                //  onClick={this.handleSubmit}
+                onClick={this.sendOtp}
+                style={
+                  this.state.isPhoneVerified ? { background: 'green' } : {}
+                }
               >
                 Verify{' '}
                 {this.state.isLoading ? (
@@ -140,8 +202,33 @@ class SetupAccount extends Component {
                 ) : null}
               </button>
             </div>
+            {this.state.canVerify ? (
+              <div className="group">
+                <input
+                  type="number"
+                  name="otp"
+                  required
+                  value={this.state.otp}
+                  placeholder="Enter otp"
+                  className="form-input"
+                  onChange={this.handleChange}
+                />
+                <button
+                  className="btn"
+                  onClick={this.verifyOtp}
+                  style={
+                    this.state.isPhoneVerified ? { background: 'green' } : {}
+                  }
+                >
+                  Verify{' '}
+                  {this.state.isLoading ? (
+                    <img src={loader} alt="Loader" />
+                  ) : null}
+                </button>
+              </div>
+            ) : null}
           </form>
-          <button className="btn" onClick={this.handleSubmit}>
+          <button className="btn complete" onClick={this.handleComplete}>
             COMPLETED{' '}
             {this.state.isLoading ? <img src={loader} alt="Loader" /> : null}
           </button>
