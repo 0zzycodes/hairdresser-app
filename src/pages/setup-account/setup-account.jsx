@@ -167,7 +167,6 @@ class SetupAccount extends Component {
                   style={
                     this.state.isVinVerified ? { background: 'green' } : {}
                   }
-                  //  onClick={this.handleComplete}
                 >
                   Verify{' '}
                   {this.state.isLoading ? (
