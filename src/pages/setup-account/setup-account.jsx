@@ -70,34 +70,32 @@ class SetupAccount extends Component {
   handleComplete = async e => {
     e.preventDefault();
     const { currentUser } = this.props;
-    const { address, nin, vin, phone, isPhoneVerified } = this.state;
+    const { address, nin, vin, phone } = this.state;
     this.setState({ isLoading: true });
-    const userRef = firestore.doc(`users/${currentUser.id}`);
-    const snapShot = await userRef.get();
-    if (snapShot.exists) {
-      const { displayName, email, joined } = currentUser;
-      try {
-        if (
-          address & vin & phone & isPhoneVerified ||
-          address & nin & phone & isPhoneVerified
-        ) {
-          await userRef.set({
-            displayName,
-            email,
-            joined,
-            address,
-            nin,
-            vin,
-            phone,
-            verified: true
-          });
-        }
-        this.setState({ isLoading: false });
-      } catch (error) {
-        this.setState({ isLoading: false });
-        console.log('Error Updating user');
-      }
-    }
+    const { displayName, email, joined } = currentUser;
+
+    const userRef = firestore
+      .collection('users')
+      .where('id', '==', currentUser.id);
+
+    userRef.get().then(querySnapshot => {
+      querySnapshot.forEach(doc => {
+
+          firestore
+            .collection('users')
+            .doc(doc.id)
+            .update({
+              displayName,
+              email,
+              joined,
+              address,
+              nin,
+              vin,
+              phone,
+              verified: true
+            });
+      });
+    });
   };
   render() {
     return (
