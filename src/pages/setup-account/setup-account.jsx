@@ -80,20 +80,19 @@ class SetupAccount extends Component {
 
     userRef.get().then(querySnapshot => {
       querySnapshot.forEach(doc => {
-
-          firestore
-            .collection('users')
-            .doc(doc.id)
-            .update({
-              displayName,
-              email,
-              joined,
-              address,
-              nin,
-              vin,
-              phone,
-              verified: true
-            });
+        firestore
+          .collection('users')
+          .doc(doc.id)
+          .update({
+            displayName,
+            email,
+            joined,
+            address,
+            nin,
+            vin,
+            phone,
+            verified: true
+          });
       });
     });
   };
@@ -226,10 +225,18 @@ class SetupAccount extends Component {
               </div>
             ) : null}
           </form>
-          <button className="btn complete" onClick={this.handleComplete}>
-            COMPLETED{' '}
-            {this.state.isLoading ? <img src={loader} alt="Loader" /> : null}
-          </button>
+          {this.state.nin !== '' ? (
+            this.state.phone !== '' ? (
+              this.state.isPhoneVerified ? (
+                <button className="btn complete" onClick={this.handleComplete}>
+                  COMPLETED{' '}
+                  {this.state.isLoading ? (
+                    <img src={loader} alt="Loader" />
+                  ) : null}
+                </button>
+              ) : null
+            ) : null
+          ) : null}
         </div>
       </div>
     );
